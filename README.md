@@ -1,5 +1,8 @@
 # docs-builder
 
+[![Docker Hub](https://img.shields.io/docker/pulls/jack20191124/elastic-docs-builder?label=elastic-docs-builder&style=for-the-badge&logo=docker&logoColor=white&labelColor=5BBCFF&color=7EA1FF)](https://hub.docker.com/r/jack20191124/elastic-docs-builder)
+[![Docker Hub](https://img.shields.io/docker/pulls/jack20191124/elastic-docs-assembler?label=elastic-docs-assembler&style=for-the-badge&logo=docker&logoColor=white&labelColor=5BBCFF&color=7EA1FF)](https://hub.docker.com/r/jack20191124/elastic-docs-assembler)
+
 [![ci](https://github.com/elastic/docs-builder/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/elastic/docs-builder/actions/workflows/ci.yml)
 
 You've reached the home of the latest incarnation of the documentation tooling.
