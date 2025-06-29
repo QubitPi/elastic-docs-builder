@@ -59,16 +59,15 @@ permissions:
   deployments: write
   id-token: write
   pull-requests: write
-    
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
   cancel-in-progress: ${{ startsWith(github.event_name, 'pull_request') }}
 
 jobs:
   match:
-    if: github.event.repository.fork == false # Skip running the job on the fork itself (It still runs on PRs on the upstream from forks)
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       contents: none
       deployments: none
       pull-requests: none
@@ -107,7 +106,7 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - match
     permissions:
       contents: read
@@ -143,7 +142,7 @@ jobs:
       deployments: write
       id-token: write
       pull-requests: none
-    outputs: 
+    outputs:
       deployment_result: ${{ steps.deployment.outputs.result }}
       path_prefix: ${{ steps.generate-path-prefix.outputs.result }}
     env:
@@ -164,7 +163,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.ref }}
           persist-credentials: false
-          
+
       - name: Create Deployment
         if: >
           env.MATCH == 'true'
@@ -300,12 +299,14 @@ jobs:
       - uses: elastic/docs-builder/.github/actions/aws-auth@main
         if: >
           !cancelled() 
+          && github.event.repository.fork == false
           && steps.docs-build.outputs.skip != 'true'
           && steps.deployment.outputs.result
       - name: Upload to S3
         id: s3-upload
         if: >
           env.MATCH == 'true'
+          && github.event.repository.fork == false
           && !cancelled() 
           && steps.docs-build.outputs.skip != 'true' 
           && steps.deployment.outputs.result
@@ -358,7 +359,7 @@ jobs:
     needs:
       - check
       - build
-    permissions: 
+    permissions:
       contents: none
       deployments: none
       id-token: none
