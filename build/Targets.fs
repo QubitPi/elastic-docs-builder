@@ -49,7 +49,7 @@ let private pristineCheck (arguments:ParseResults<Build>) =
     | true, _ -> printfn "Skip checking for clean working copy since -c is specified"
     | _, true  -> printfn "The checkout folder does not have pending changes, proceeding"
     | _ -> failwithf "The checkout folder has pending changes, aborting. Specify -c to ./build.sh to skip this check"
-    
+
     match skipCheck, (exec { exit_code_of "dotnet" "format" "--verify-no-changes" }) with
     | true, _ -> printfn "Skip formatting checks since -c is specified"
     | _, 0  -> printfn "There are no dotnet formatting violations, continuing the build."
@@ -94,13 +94,13 @@ let private publishContainers _ =
                 "-p"; "DebugType=none";
                 "-p"; $"ContainerBaseImage=mcr.microsoft.com/dotnet/nightly/runtime-deps:8.0-%s{imageTag}";
                 "-p"; $"ContainerImageTags=\"%s{labels};%s{Software.Version.Normalize()}\""
-                "-p"; $"ContainerRepository=elastic/%s{project}"
+                "-p"; $"ContainerRepository=jack20191124/elastic-%s{project}"
             ]
         let registry =
             match Environment.environVarOrNone "GITHUB_ACTIONS" with
             | None -> []
             | Some _ -> [
-                "-p"; "ContainerRegistry=ghcr.io"
+                "-p"; "ContainerRegistry=docker.io"
                 "-p"; "ContainerUser=1001:1001";
             ]
         exec { run "dotnet" (args @ registry) }
@@ -114,7 +114,7 @@ let private runTests _ =
             @ ["--"; "RunConfiguration.CollectSourceInformation=true"]
         )
     }
-    
+
 let private validateLicenses _ =
     let args = ["-u"; "-t"; "-i"; "docs-builder.sln"; "--use-project-assets-json"
                 "--forbidden-license-types"; "build/forbidden-license-types.json"
@@ -131,11 +131,11 @@ let Setup (parsed:ParseResults<Build>) =
         | Build ->
             Build.Cmd
                 [Clean; Lint; Compile] [] build
-        
+
         | Test -> Build.Cmd [Compile] [] runTests
-        
+
         | Release ->
-            Build.Cmd 
+            Build.Cmd
                 [PristineCheck; Build]
                 [ValidateLicenses;]
                 release
@@ -163,5 +163,5 @@ let Setup (parsed:ParseResults<Build>) =
         | Skip_Dirty_Check -> Build.Ignore
 
     for target in Build.Targets do
-        let setup = wireCommandLine target 
+        let setup = wireCommandLine target
         setup target parsed

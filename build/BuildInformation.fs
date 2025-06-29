@@ -24,29 +24,29 @@ type Paths =
             | _ -> rooted <- true
         Environment.CurrentDirectory <- dir.FullName
         dir
-        
-    static member RelativePathToRoot path = Path.GetRelativePath(Paths.Root.FullName, path) 
-        
+
+    static member RelativePathToRoot path = Path.GetRelativePath(Paths.Root.FullName, path)
+
     static member ArtifactFolder = DirectoryInfo(Path.Combine(Paths.Root.FullName, ".artifacts"))
     static member ArtifactPath t = DirectoryInfo(Path.Combine(Paths.ArtifactFolder.FullName, t))
-    
+
     static member private SrcFolder = DirectoryInfo(Path.Combine(Paths.Root.FullName, "src"))
     static member SrcPath (t: string list) = DirectoryInfo(Path.Combine([Paths.SrcFolder.FullName] @ t |> List.toArray))
 
 
-type BuildConfiguration = 
+type BuildConfiguration =
     static member ValidateAssemblyName = false
     static member GenerateApiChanges = false
-    
+
 type Software =
-    static member Organization = "elastic"
-    static member Repository = "docs-builder"
+    static member Organization = "QubitPi"
+    static member Repository = "elastic-docs-builder"
     static member GithubMoniker = $"%s{Software.Organization}/%s{Software.Repository}"
     static member SignKey = "069ca2728db333c1"
-    
+
     static let restore =
         Lazy<unit>((fun _ -> exec { run "dotnet" "tool" "restore" }), LazyThreadSafetyMode.ExecutionAndPublication)
-        
+
     static let versionInfo =
         Lazy<SemVerInfo>(fun _ ->
             let sha = Information.getCurrentSHA1 "."
@@ -57,13 +57,13 @@ type Software =
             }
             SemVer.parse <| $"%s{output.Line}+%s{sha}"
         , LazyThreadSafetyMode.ExecutionAndPublication)
-        
+
     static member Version = restore.Value; versionInfo.Value
 
 type OS =
     | OSX | Windows | Linux
 with
-    static member Current = 
+    static member Current =
         match 1 with
         | _ when RuntimeInformation.IsOSPlatform OSPlatform.OSX -> OSX
         | _ when RuntimeInformation.IsOSPlatform OSPlatform.Windows -> Windows
